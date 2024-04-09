@@ -7,18 +7,24 @@ from .serializers import MatchDetailSerializer,MatchesSerializer,SquadSerializer
 from players_stats.models import Players
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import authentication_classes, permission_classes
+from django.utils.decorators import method_decorator
 # Create your views here.
 
-class MatchesAPIView(APIView):
-    
+
+
+class GetMatchesAPIView(APIView):
+    authentication_classes =[]
+    permission_classes = []
     def get(self, request):
         matches = Matches.objects.all()
         serializer = MatchesSerializer(matches, many=True)
         return Response({"matches": serializer.data})
 
+class MatchesAPIView(APIView):
+    authentication_classes =[TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     def post(self,request):
-        authentication_classes = [TokenAuthentication]
-        permission_classes = [IsAuthenticated]  
         team_1_name = request.data.get('team_1')
         team_2_name = request.data.get('team_2')
         date = request.data.get('date')
@@ -43,6 +49,7 @@ class MatchesAPIView(APIView):
 
         return Response({"message": "Match created successfully", "match_id": match.match_id}, status=status.HTTP_201_CREATED)
 
+
 class MatchDetailAPIView(APIView):
     def get(self, request, match_id):
         try:
@@ -56,6 +63,8 @@ class MatchDetailAPIView(APIView):
 
 
 class SquadCreateAPIView(APIView):
+    authentication_classes =[TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     def post(self, request, team_id):
         authentication_classes = [TokenAuthentication]
         permission_classes  = [IsAuthenticated]
